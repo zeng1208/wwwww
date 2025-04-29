@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务商城</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: "Tajawal", sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.faq-answer.active {
+  max-height: 500px;
+}
+
+.faq-question {
+  cursor: pointer;
+}
+
+.faq-question:hover {
+  color: #006400;
+}
+
+.transaction-scroll {
+  height: 300px;
+  overflow: hidden;
+}
+
+.tab-active {
+  border-bottom: 2px solid #006400;
+  font-weight: 600;
+}
+
+/* 新增样式 */
+.download-btn-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 100, 0, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 100, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 100, 0, 0);
+  }
+}
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f8ff;
+  border: 1px solid #d0e3ff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 4px;
+  font-size: 12px;
+  color: #0066cc;
+}
+
+.download-counter {
+  background-color: rgba(0, 100, 0, 0.1);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 14px;
+  color: #006400;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.step-guide {
+  counter-reset: step;
+}
+
+.step-guide li {
+  position: relative;
+  padding-left: 40px;
+  margin-bottom: 16px;
+  counter-increment: step;
+}
+
+.step-guide li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  background-color: #006400;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.rtl .step-guide li {
+  padding-left: 0;
+  padding-right: 40px;
+}
+
+.rtl .step-guide li::before {
+  left: auto;
+  right: 0;
+}
+
+/* 管理员界面优化 */
+.admin-panel {
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.admin-container {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 100, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.admin-header {
+  border-bottom: 2px solid rgba(0, 100, 0, 0.1);
+  position: relative;
+}
+
+.admin-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background-color: #006400;
+}
+
+.admin-input {
+  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-input:focus {
+  border-color: #006400;
+  box-shadow: 0 0 0 2px rgba(0, 100, 0, 0.1);
+}
+
+.admin-btn {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.admin-btn:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+.admin-tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-tab {
+  position: relative;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.admin-tab:hover {
+  background-color: rgba(0, 100, 0, 0.05);
+}
+
+.admin-tab.tab-active {
+  color: #006400;
+  font-weight: 600;
+}
+
+.admin-tab.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #006400;
+}
+
+.admin-field-container {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #006400 #f0f0f0;
+}
+
+.admin-field-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-field-container::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.admin-field-container::-webkit-scrollbar-thumb {
+  background-color: #006400;
+  border-radius: 10px;
+}
+
+.admin-field {
+  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.admin-field:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.admin-field-label {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.admin-field-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  resize: vertical;
+  min-height: 80px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.admin-field-textarea:focus {
+  outline: none;
+  background-color: #f9fafb;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.admin-save-btn {
+  flex: 1;
+  background-color: #006400;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.admin-save-btn:hover {
+  background-color: #005000;
+}
+
+.admin-close-btn {
+  flex: 1;
+  background-color: #e53e3e;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.admin-close-btn:hover {
+  background-color: #c53030;
+}
+</style>
+</head>
+<body>
+<canvas id="particleCanvas"></canvas>
+
+<div id="app" class="relative z-10">
+  <!-- 导航栏 -->
+  <nav class="bg-white shadow-md py-2 px-4 sticky top-0 z-20">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="#" class="font-bold text-xl text-green-800" id="header-title">任务商城</a>
+      
+      <button class="md:hidden text-gray-700" id="menu-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      
+      <div class="hidden md:flex space-x-8" id="desktop-menu">
+        <a href="#" class="flex items-center gap-1 text-green-800 font-semibold" id="nav-home">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+          </svg>
+          <span>首页</span>
+        </a>
+        <a href="#tasks" class="flex items-center gap-1 text-gray-600 hover:text-green-800" id="nav-tasks">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+          </svg>
+          <span>任务列表</span>
+        </a>
+        <a href="#profile" class="flex items-center gap-1 text-gray-600 hover:text-green-800" id="nav-profile">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+          </svg>
+          <span>个人中心</span>
+        </a>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden absolute top-full left-0 right-0 bg-white shadow-md z-30">
+      <div class="flex flex-col">
+        <a href="#" class="flex items-center gap-2 p-4 bg-green-50 text-green-800 font-semibold" id="mobile-nav-home">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+          </svg>
+          <span>首页</span>
+        </a>
+        <a href="#tasks" class="flex items-center gap-2 p-4 text-gray-600 hover:bg-gray-50" id="mobile-nav-tasks">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+          </svg>
+          <span>任务列表</span>
+        </a>
+        <a href="#profile" class="flex items-center gap-2 p-4 text-gray-600 hover:bg-gray-50" id="mobile-nav-profile">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+          </svg>
+          <span>个人中心</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- 页面内容 -->
+  <div id="content">
+    <!-- 首页 -->
+    <div id="home-page" class="page active">
+      <header class="bg-gradient-to-r from-green-800 to-yellow-400 p-4 text-center text-white text-2xl font-bold relative z-10" id="page-header">
+        任务商城
+      </header>
+      
+      <main class="container mx-auto px-4 py-8">
+        <!-- 信任标志 -->
+        <div class="flex flex-wrap justify-center mb-6">
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span id="trust-verified">已验证</span>
+          </div>
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v-1l1-1 1-1 .257-.257A6 6 0 1118 8zm-6-4a1 1 0 100 2h2a1 1 0 100-2h-2z" clip-rule="evenodd" />
+            </svg>
+            <span id="trust-scanned">无病毒</span>
+          </div>
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+            </svg>
+            <span id="trust-users">10,000+ 用户</span>
+          </div>
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
+            </svg>
+            <span id="trust-success">98% 成功率</span>
+          </div>
+        </div>
+        
+        <!-- 下载计数器 -->
+        <div class="flex justify-center mb-6">
+          <div class="download-counter">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+            <span id="download-count">今日已有 1,247 人下载</span>
+          </div>
+        </div>
+        
+        <!-- 任务说明 -->
+        <div class="bg-gray-50 rounded-xl shadow-md mb-8 p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg animate-fadeIn">
+          <h2 class="text-xl font-bold mb-3" id="task-card-title">📋 任务说明</h2>
+          <p class="mb-2" id="task-description">任务内容：自动化软件测试（无需技术）</p>
+          <p class="mb-2" id="task-reward">报酬：每台设备10美元（USDT-TRC20支付）</p>
+          <p id="task-duration">耗时：约5-10分钟</p>
+        </div>
+        
+        <!-- 重要提示 -->
+        <div class="bg-gray-50 rounded-xl shadow-md mb-8 p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg animate-fadeIn">
+          <h2 class="text-xl font-bold mb-3" id="important-title">⚠️ 重要提示</h2>
+          <p class="mb-3" id="warning-msg">谷歌安全检测可能会阻止安装：</p>
+          
+          <button id="play-protect-btn" class="bg-green-800 text-white py-3 px-6 rounded-lg mb-4 hover:bg-green-900 transition-colors w-full md:w-auto">
+            🔒 如何关闭Play Protect
+          </button>
+          
+          <div id="play-protect-guide" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 animate-fadeIn hidden">
+            <div class="text-left">
+              <p class="font-bold mb-2" id="guide-title">请按照以下步骤关闭Play Protect：</p>
+              <ol class="step-guide" id="guide-steps">
+                <li>打开您的手机上的「Google Play 商店」</li>
+                <li>点击右上角您的头像（或账户图标）</li>
+                <li>点击进入「Play Protect」</li>
+                <li>点击右上角的齿轮图标（设置）</li>
+                <li>关闭以下两个开关：
+                  <ul class="list-disc pl-5 mt-1">
+                    <li>🔧 扫描应用威胁</li>
+                    <li>🔧 提升有害应用检测功能</li>
+                  </ul>
+                </li>
+                <li>关闭后返回本页面，继续下载安装应用</li>
+              </ol>
+            </div>
+          </div>
+          
+          <p class="mb-3" id="download-note">⬇️ 立即下载</p>
+          <p class="text-sm text-gray-600 mb-3" id="apk-info">task_app_v3.2.apk (28.5MB)</p>
+          <a href="https://example.com/task_app_v3.2.apk" target="_blank" rel="noopener noreferrer">
+            <button class="bg-green-800 text-white py-3 px-6 rounded-lg hover:bg-green-900 transition-colors w-full md:w-auto download-btn-pulse" id="download-btn">
+              下载赚10美元
+            </button>
+          </a>
+        </div>
+        
+        <!-- 常见问题 -->
+        <div class="bg-gray-50 rounded-xl shadow-md mb-8 p-6 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg animate-fadeIn">
+          <h2 class="text-xl font-bold mb-3" id="faq-title">❓ 常见问题</h2>
+          
+          <div class="mb-3">
+            <p class="faq-question font-medium flex items-center justify-between" id="faq-safety-question">
+              <span>软件是否安全？</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </p>
+            <div class="faq-answer mt-2 text-gray-600 pl-4 border-l-2 border-gray-200" id="faq-safety-answer">
+              <p id="faq-safety">100%无病毒，谷歌可能会误报风险</p>
+            </div>
+          </div>
+          
+          <div>
+            <p class="faq-question font-medium flex items-center justify-between" id="faq-withdraw-question">
+              <span>如何提现？</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </p>
+            <div class="faq-answer mt-2 text-gray-600 pl-4 border-l-2 border-gray-200" id="faq-withdraw-answer">
+              <p id="faq-withdraw">任务完成后24小时内USDT-TRC20自动到账</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    
+    <!-- 任务列表页面 -->
+    <div id="tasks-page" class="page hidden">
+      <header class="bg-gradient-to-r from-green-800 to-yellow-400 p-4 text-center text-white text-2xl font-bold relative z-10" id="tasks-header">
+        任务列表
+      </header>
+      
+      <main class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6" id="tasks-available">可用任务</h1>
+        
+        <div class="grid gap-4" id="tasks-container">
+          <!-- 任务将通过JavaScript动态生成 -->
+        </div>
+      </main>
+    </div>
+    
+    <!-- 个人中心页面 -->
+    <div id="profile-page" class="page hidden">
+      <header class="bg-gradient-to-r from-green-800 to-yellow-400 p-4 text-center text-white text-2xl font-bold relative z-10" id="profile-header">
+        个人中心
+      </header>
+      
+      <main class="container mx-auto px-4 py-8">
+        <div class="bg-gray-50 rounded-xl shadow-md mb-8 p-6">
+          <h1 class="text-2xl font-bold mb-4" id="profile-my-account">我的账户</h1>
+          <div class="flex flex-col md:flex-row gap-8">
+            <div class="flex-1">
+              <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-2" id="profile-account-balance">账户余额</h2>
+                <div class="text-3xl font-bold text-green-800">0.00 USDT</div>
+              </div>
+              
+              <form id="withdrawal-form" class="space-y-4">
+                <h2 class="text-lg font-semibold" id="profile-apply-withdrawal">申请提现</h2>
+                <div>
+                  <label class="block text-sm font-medium mb-1" id="profile-withdrawal-amount">提现金额 (USDT)</label>
+                  <input
+                    type="number"
+                    min="10"
+                    step="0.01"
+                    class="w-full p-2 border rounded"
+                    placeholder="最低提现金额 10 USDT"
+                    required
+                    id="withdrawal-amount"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1" id="profile-wallet-address">USDT-TRC20 钱包地址</label>
+                  <input
+                    type="text"
+                    class="w-full p-2 border rounded"
+                    placeholder="请输入您的 USDT-TRC20 钱包地址"
+                    required
+                    id="wallet-address"
+                  />
+                </div>
+                <button type="submit" class="bg-green-800 text-white py-2 px-4 rounded hover:bg-green-900" id="profile-submit-withdrawal">
+                  申请提现
+                </button>
+              </form>
+            </div>
+            
+            <div class="flex-1">
+              <h2 class="text-lg font-semibold mb-2" id="profile-transaction-records">交易记录</h2>
+              <div class="space-y-3 max-h-80 overflow-hidden transaction-scroll" id="transaction-container">
+                <!-- 交易记录将通过JavaScript动态生成 -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    
+    <footer class="text-center py-4 bg-gray-100 text-sm text-gray-600 relative z-10" id="footer-text">
+      版权所有 © 2025 中东任务平台
+    </footer>
+  </div>
+  
+  <!-- 客服按钮 -->
+  <div class="fixed right-5 top-1/2 -translate-y-1/2 z-40">
+    <button id="customer-service-btn" class="bg-green-800 text-white p-3 rounded-full shadow-lg hover:bg-green-900 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+      </svg>
+    </button>
+    
+    <div id="customer-service-panel" class="hidden absolute right-16 top-0 bg-white rounded-lg shadow-xl p-4 w-64">
+      <h3 class="font-bold text-lg mb-2" id="customer-service-title">在线客服</h3>
+      <p class="text-sm text-gray-600 mb-4" id="customer-service-description">点击联系客服获取帮助</p>
+      
+      <div class="space-y-3">
+        <a
+          href="https://wa.me/8613875332606"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block bg-green-500 text-white text-center py-2 px-4 rounded hover:bg-green-600 transition-colors"
+          id="whatsapp-link"
+        >
+          WhatsApp
+        </a>
+        
+        <a
+          href="https://t.me/o0ing"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block bg-blue-500 text-white text-center py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+          id="telegram-link"
+        >
+          Telegram
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 管理员按钮 -->
+  <div id="admin-btn" class="fixed bottom-5 right-5 bg-green-800/50 text-white px-3 py-1.5 rounded-full text-sm cursor-pointer z-50 opacity-70 hover:opacity-100 transition-opacity">
+    管理员
+  </div>
+  
+  <!-- 管理员面板 -->
+  <div id="admin-panel" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden admin-panel">
+    <div class="bg-white rounded-xl p-6 w-11/12 max-w-lg max-h-[80vh] overflow-hidden admin-container">
+      <h3 class="text-xl font-bold mb-4 pb-3 admin-header">管理员后台</h3>
+      
+      <div id="admin-login" class="space-y-4">
+        <input
+          type="text"
+          placeholder="账号"
+          class="w-full p-3 rounded admin-input focus:outline-none"
+          id="admin-username"
+        />
+        <input
+          type="password"
+          placeholder="密码"
+          class="w-full p-3 rounded admin-input focus:outline-none"
+          id="admin-password"
+        />
+        <button id="admin-login-btn" class="w-full bg-green-800 text-white py-3 rounded hover:bg-green-900 admin-btn">
+          登录
+        </button>
+      </div>
+      
+      <div id="admin-content" class="space-y-4 hidden">
+        <!-- 页面选择标签 -->
+        <div class="admin-tabs border-b">
+          <button data-tab="home" class="admin-tab px-4 py-3 tab-active">首页</button>
+          <button data-tab="apk" class="admin-tab px-4 py-3">APK设置</button>
+          <button data-tab="customer" class="admin-tab px-4 py-3">客服设置</button>
+        </div>
+        
+        <h4 class="font-bold text-gray-700">文本修改区（仅修改中文内容，其他语言将自动翻译）</h4>
+        
+        <div id="admin-fields" class="admin-field-container">
+          <!-- 字段将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="admin-actions">
+          <button id="admin-save" class="admin-save-btn">
+            保存
+          </button>
+          <button id="admin-close" class="admin-close-btn">
+            退出
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 多语言支持
+const translations = {
+  zh: {
+    // 通用
+    header_title: "任务商城",
+    footer_text: "版权所有 © 2025 中东任务平台",
+    admin_panel_title: "管理员后台",
+    admin_login_btn: "登录",
+    
+    // 导航
+    nav_home: "首页",
+    nav_tasks: "任务列表",
+    nav_profile: "个人中心",
+    
+    // 首页内容
+    home_task_card_title: "📋 任务说明",
+    home_task_description: "任务内容：自动化软件测试（无需技术）",
+    home_task_reward: "报酬：每台设备10美元（USDT-TRC20支付）",
+    home_task_duration: "耗时：约5-10分钟",
+    home_important_title: "⚠️ 重要提示",
+    home_warning_msg: "谷歌安全检测可能会阻止安装：",
+    home_play_protect_btn: "🔒 如何关闭Play Protect",
+    home_download_note: "⬇️ 立即下载",
+    home_apk_info: "task_app_v3.2.apk (28.5MB)",
+    home_download_url: "https://example.com/task_app_v3.2.apk",
+    home_download_btn: "下载赚10美元",
+    home_faq_title: "❓ 常见问题",
+    home_faq_safety: "100%无病毒，谷歌可能会误报风险",
+    home_faq_withdraw: "任务完成后24小时内USDT-TRC20自动到账",
+    home_faq_safety_question: "软件是否安全？",
+    home_faq_withdraw_question: "如何提现？",
+    guide_title: "请按照以下步骤关闭Play Protect：",
+    guide_steps_1: "打开您的手机上的「Google Play 商店」",
+    guide_steps_2: "点击右上角您的头像（或账户图标）",
+    guide_steps_3: "点击进入「Play Protect」",
+    guide_steps_4: "点击右上角的齿轮图标（设置）",
+    guide_steps_5: "关闭以下两个开关：",
+    guide_steps_5_1: "🔧 扫描应用威胁",
+    guide_steps_5_2: "🔧 提升有害应用检测功能",
+    guide_steps_6: "关闭后返回本页面，继续下载安装应用",
+    
+    // 新增信任标志
+    trust_verified: "已验证",
+    trust_scanned: "无病毒",
+    trust_users: "10,000+ 用户",
+    trust_success: "98% 成功率",
+    download_count: "今日已有 1,247 人下载",
+    
+    // 任务列表页面
+    tasks_page_title: "任务列表",
+    tasks_available: "可用任务",
+    tasks_reward: "奖励：",
+    tasks_difficulty: "难度：",
+    tasks_estimated_time: "预计时间：",
+    tasks_start_button: "开始任务",
+    tasks_completed_button: "已完成",
+    tasks_locked_message: "请先完成软件下载任务以解锁更多高额任务",
+    tasks_locked_button: "未解锁",
+    
+    // 任务数据
+    task_1_title: "自动化软件测试任务",
+    task_1_reward: "10美元",
+    task_1_difficulty: "简单",
+    task_1_time: "5-10分钟",
+    task_2_title: "*******",
+    task_2_reward: "15美元",
+    task_2_difficulty: "简单",
+    task_2_time: "10-15分钟",
+    task_3_title: "*******",
+    task_3_reward: "20美元",
+    task_3_difficulty: "中等",
+    task_3_time: "15-20分钟",
+    task_4_title: "*******",
+    task_4_reward: "25美元",
+    task_4_difficulty: "中等",
+    task_4_time: "20-25分钟",
+    task_5_title: "*******",
+    task_5_reward: "30美元",
+    task_5_difficulty: "困难",
+    task_5_time: "25-30分钟",
+    
+    // 个人中心页面
+    profile_page_title: "个人中心",
+    profile_my_account: "我的账户",
+    profile_account_balance: "账户余额",
+    profile_apply_withdrawal: "申请提现",
+    profile_withdrawal_amount: "提现金额 (USDT)",
+    profile_min_withdrawal: "最低提现金额 10 USDT",
+    profile_wallet_address: "USDT-TRC20 钱包地址",
+    profile_wallet_placeholder: "请输入您的 USDT-TRC20 钱包地址",
+    profile_submit_withdrawal: "申请提现",
+    profile_transaction_records: "交易记录",
+    profile_withdrawal_request: "提现申请",
+    profile_completed: "已完成",
+    profile_processing: "处理中",
+    profile_withdrawal_to: "提现到",
+    profile_withdrawal_success: "提现成功",
+    
+    // 客服相关
+    customer_service_title: "在线客服",
+    customer_service_description: "点击联系客服获取帮助",
+    whatsapp_id: "8613875332606",
+    telegram_id: "o0ing",
+  },
+  en: {
+    // 通用
+    header_title: "Task Mall",
+    footer_text: "Copyright © 2025 Middle East Task Platform",
+    admin_panel_title: "Admin Panel",
+    admin_login_btn: "Login",
+    
+    // 导航
+    nav_home: "Home",
+    nav_tasks: "Task List",
+    nav_profile: "Profile",
+    
+    // 首页内容
+    home_task_card_title: "📋 Task Description",
+    home_task_description: "Task content: Automated software testing (no technical skills required)",
+    home_task_reward: "Reward: $10 per device (USDT-TRC20 payment)",
+    home_task_duration: "Duration: 5-10 minutes",
+    home_important_title: "⚠️ Important Tip",
+    home_warning_msg: "Google Security Check may block installation:",
+    home_play_protect_btn: "🔒 How to Disable Play Protect",
+    home_download_note: "⬇️ Download Now",
+    home_apk_info: "task_app_v3.2.apk (28.5MB)",
+    home_download_url: "https://example.com/task_app_v3.2.apk",
+    home_download_btn: "Download to Earn $10",
+    home_faq_title: "❓ FAQ",
+    home_faq_safety: "100% virus-free, Google may mistakenly flag it",
+    home_faq_withdraw: "USDT-TRC20 will be credited within 24h",
+    home_faq_safety_question: "Is the software safe?",
+    home_faq_withdraw_question: "How to withdraw?",
+    guide_title: "Follow these steps to disable Play Protect:",
+    guide_steps_1: "Open \"Google Play Store\" on your phone",
+    guide_steps_2: "Tap your profile icon in the top right corner",
+    guide_steps_3: "Tap \"Play Protect\"",
+    guide_steps_4: "Tap the gear icon (settings) in the top right",
+    guide_steps_5: "Turn off these two switches:",
+    guide_steps_5_1: "🔧 Scan apps for threats",
+    guide_steps_5_2: "🔧 Improve harmful app detection",
+    guide_steps_6: "Return to this page and continue downloading the app",
+    
+    // 新增信任标志
+    trust_verified: "Verified",
+    trust_scanned: "Virus-Free",
+    trust_users: "10,000+ Users",
+    trust_success: "98% Success Rate",
+    download_count: "1,247 downloads today",
+    
+    // 任务列表页面
+    tasks_page_title: "Task List",
+    tasks_available: "Available Tasks",
+    tasks_reward: "Reward: ",
+    tasks_difficulty: "Difficulty: ",
+    tasks_estimated_time: "Estimated Time: ",
+    tasks_start_button: "Start Task",
+    tasks_completed_button: "Completed",
+    tasks_locked_message: "Please complete the software download task first to unlock more high-paying tasks",
+    tasks_locked_button: "Locked",
+    
+    // 任务数据
+    task_1_title: "Automated Software Testing Task",
+    task_1_reward: "$10",
+    task_1_difficulty: "Easy",
+    task_1_time: "5-10 minutes",
+    task_2_title: "*******",
+    task_2_reward: "$15",
+    task_2_difficulty: "Easy",
+    task_2_time: "10-15 minutes",
+    task_3_title: "*******",
+    task_3_reward: "$20",
+    task_3_difficulty: "Medium",
+    task_3_time: "15-20 minutes",
+    task_4_title: "*******",
+    task_4_reward: "$25",
+    task_4_difficulty: "Medium",
+    task_4_time: "20-25 minutes",
+    task_5_title: "*******",
+    task_5_reward: "$30",
+    task_5_difficulty: "Hard",
+    task_5_time: "25-30 minutes",
+    
+    // 个人中心页面
+    profile_page_title: "Profile Center",
+    profile_my_account: "My Account",
+    profile_account_balance: "Account Balance",
+    profile_apply_withdrawal: "Apply for Withdrawal",
+    profile_withdrawal_amount: "Withdrawal Amount (USDT)",
+    profile_min_withdrawal: "Minimum withdrawal amount 10 USDT",
+    profile_wallet_address: "USDT-TRC20 Wallet Address",
+    profile_wallet_placeholder: "Please enter your USDT-TRC20 wallet address",
+    profile_submit_withdrawal: "Apply for Withdrawal",
+    profile_transaction_records: "Transaction Records",
+    profile_withdrawal_request: "Withdrawal Request",
+    profile_completed: "Completed",
+    profile_processing: "Processing",
+    profile_withdrawal_to: "Withdrawal to",
+    profile_withdrawal_success: "Withdrawal successful",
+    
+    // 客服相关
+    customer_service_title: "Customer Service",
+    customer_service_description: "Click to contact customer service for help",
+    whatsapp_id: "8613875332606",
+    telegram_id: "o0ing",
+  },
+  ar: {
+    // 通用
+    header_title: "متجر المهام",
+    footer_text: "© 2025 منصة المهام",
+    admin_panel_title: "لوحة الإدارة",
+    admin_login_btn: "تسجيل الدخول",
+    
+    // 导航
+    nav_home: "الرئيسية",
+    nav_tasks: "قائمة المهام",
+    nav_profile: "الملف الشخصي",
+    
+    // 首页内容
+    home_task_card_title: "📋 وصف المهمة",
+    home_task_description: "محتوى المهمة: اختبار البرامج تلقائيًا (لا تتطلب مهارات تقنية)",
+    home_task_reward: "المكافأة: 10 دولارات لكل جهاز (USDT-TRC20)",
+    home_task_duration: "المدة: 5-10 دقائق",
+    home_important_title: "⚠️ تنبيه مهم",
+    home_warning_msg: "قد يمنع فحص أمان Google التثبيت:",
+    home_play_protect_btn: "🔒 كيفية تعطيل Play Protect",
+    home_download_note: "⬇️ حمل الآن",
+    home_apk_info: "task_app_v3.2.apk (28.5MB)",
+    home_download_url: "https://example.com/task_app_v3.2.apk",
+    home_download_btn: "حمّل واكسب 10 دولارات",
+    home_faq_title: "❓ الأسئلة الشائعة",
+    home_faq_safety: "100% خالي من الفيروسات، قد يتم الإبلاغ عن خطأ من Google",
+    home_faq_withdraw: "سيتم إيداع USDT-TRC20 خلال 24 ساعة",
+    home_faq_safety_question: "هل البرنامج آمن؟",
+    home_faq_withdraw_question: "كيف أسحب؟",
+    guide_title: "اتبع هذه الخطوات لتعطيل Play Protect:",
+    guide_steps_1: "افتح \"متجر Google Play\" على هاتفك",
+    guide_steps_2: "انقر على رمز ملفك الشخصي في الزاوية العلوية اليمنى",
+    guide_steps_3: "انقر على \"Play Protect\"",
+    guide_steps_4: "انقر على رمز الترس (الإعدادات) في الزاوية العلوية اليمنى",
+    guide_steps_5: "قم بإيقاف تشغيل هذين المفتاحين:",
+    guide_steps_5_1: "🔧 فحص التطبيقات بحثًا عن تهديدات",
+    guide_steps_5_2: "🔧 تحسين اكتشاف التطبيقات الضارة",
+    guide_steps_6: "عد إلى هذه الصفحة واستمر في تنزيل التطبيق",
+    
+    // 新增信任标志
+    trust_verified: "تم التحقق",
+    trust_scanned: "خالي من الفيروسات",
+    trust_users: "+10,000 مستخدم",
+    trust_success: "معدل نجاح 98%",
+    download_count: "1,247 تنزيل اليوم",
+    
+    // 任务列表页面
+    tasks_page_title: "قائمة المهام",
+    tasks_available: "المهام المتاحة",
+    tasks_reward: "المكافأة: ",
+    tasks_difficulty: "الصعوبة: ",
+    tasks_estimated_time: "الوقت المقدر: ",
+    tasks_start_button: "بدء المهمة",
+    tasks_completed_button: "مكتمل",
+    tasks_locked_message: "يرجى إكمال مهمة تنزيل البرنامج أولاً لفتح المزيد من المهام ذات الأجر المرتفع",
+    tasks_locked_button: "مقفل",
+    
+    // 任务数据
+    task_1_title: "مهمة اختبار البرامج الآلي",
+    task_1_reward: "10 دولار",
+    task_1_difficulty: "سهل",
+    task_1_time: "5-10 دقائق",
+    task_2_title: "*******",
+    task_2_reward: "15 دولار",
+    task_2_difficulty: "سهل",
+    task_2_time: "10-15 دقيقة",
+    task_3_title: "*******",
+    task_3_reward: "20 دولار",
+    task_3_difficulty: "متوسط",
+    task_3_time: "15-20 دقيقة",
+    task_4_title: "*******",
+    task_4_reward: "25 دولار",
+    task_4_difficulty: "متوسط",
+    task_4_time: "20-25 دقيقة",
+    task_5_title: "*******",
+    task_5_reward: "30 دولار",
+    task_5_difficulty: "صعب",
+    task_5_time: "25-30 دقيقة",
+    
+    // 个人中心页面
+    profile_page_title: "مركز الملف الشخصي",
+    profile_my_account: "حسابي",
+    profile_account_balance: "رصيد الحساب",
+    profile_apply_withdrawal: "طلب السحب",
+    profile_withdrawal_amount: "مبلغ السحب (USDT)",
+    profile_min_withdrawal: "الحد الأدنى للسحب 10 USDT",
+    profile_wallet_address: "عنوان محفظة USDT-TRC20",
+    profile_wallet_placeholder: "الرجاء إدخال عنوان محفظة USDT-TRC20 الخاصة بك",
+    profile_submit_withdrawal: "طلب السحب",
+    profile_transaction_records: "سجلات المعاملات",
+    profile_withdrawal_request: "طلب السحب",
+    profile_completed: "مكتمل",
+    profile_processing: "قيد المعالجة",
+    profile_withdrawal_to: "السحب إلى",
+    profile_withdrawal_success: "تم السحب بنجاح",
+    
+    // 客服相关
+    customer_service_title: "خدمة العملاء",
+    customer_service_description: "انقر للاتصال بخدمة العملاء للحصول على المساعدة",
+    whatsapp_id: "8613875332606",
+    telegram_id: "o0ing",
+  },
+  // 添加更多语言支持
+  es: {
+    header_title: "Centro de Tareas",
+    nav_home: "Inicio",
+    nav_tasks: "Lista de Tareas",
+    nav_profile: "Perfil",
+    // 其他翻译...
+  },
+  fr: {
+    header_title: "Centre de Tâches",
+    nav_home: "Accueil",
+    nav_tasks: "Liste des Tâches",
+    nav_profile: "Profil",
+    // 其他翻译...
+  },
+  de: {
+    header_title: "Aufgabenzentrum",
+    nav_home: "Startseite",
+    nav_tasks: "Aufgabenliste",
+    nav_profile: "Profil",
+    // 其他翻译...
+  },
+  it: {
+    header_title: "Centro Attività",
+    nav_home: "Home",
+    nav_tasks: "Elenco Attività",
+    nav_profile: "Profilo",
+    // 其他翻译...
+  },
+  ja: {
+    header_title: "タスクセンター",
+    nav_home: "ホーム",
+    nav_tasks: "タスク一覧",
+    nav_profile: "プロフィール",
+    // 其他翻译...
+  },
+  ko: {
+    header_title: "작업 센터",
+    nav_home: "홈",
+    nav_tasks: "작업 목록",
+    nav_profile: "프로필",
+    // 其他翻译...
+  },
+  pt: {
+    header_title: "Centro de Tarefas",
+    nav_home: "Início",
+    nav_tasks: "Lista de Tarefas",
+    nav_profile: "Perfil",
+    // 其他翻译...
+  },
+  ru: {
+    header_title: "Центр Задач",
+    nav_home: "Главная",
+    nav_tasks: "Список Задач",
+    nav_profile: "Профиль",
+    // 其他翻译...
+  },
+  tr: {
+    header_title: "Görev Merkezi",
+    nav_home: "Ana Sayfa",
+    nav_tasks: "Görev Listesi",
+    nav_profile: "Profil",
+    // 其他翻译...
+  },
+  vi: {
+    header_title: "Trung tâm Nhiệm vụ",
+    nav_home: "Trang chủ",
+    nav_tasks: "Danh sách Nhiệm vụ",
+    nav_profile: "Hồ sơ",
+    // 其他翻译...
+  },
+  th: {
+    header_title: "ศูนย์งาน",
+    nav_home: "หน้าแรก",
+    nav_tasks: "รายการงาน",
+    nav_profile: "โปรไฟล์",
+    // 其他翻译...
+  },
+  id: {
+    header_title: "Pusat Tugas",
+    nav_home: "Beranda",
+    nav_tasks: "Daftar Tugas",
+    nav_profile: "Profil",
+    // 其他翻译...
+  },
+  ms: {
+    header_title: "Pusat Tugas",
+    nav_home: "Laman Utama",
+    nav_tasks: "Senarai Tugas",
+    nav_profile: "Profil",
+    // 其他翻译...
+  },
+  hi: {
+    header_title: "कार्य केंद्र",
+    nav_home: "होम",
+    nav_tasks: "कार्य सूची",
+    nav_profile: "प्रोफाइल",
+    // 其他翻译...
+  },
+  fa: {
+    header_title: "مرکز وظایف",
+    nav_home: "خانه",
+    nav_tasks: "لیست وظایف",
+    nav_profile: "پروفایل",
+    // 其他翻译...
+  }
+};
+
+// 模拟提现记录数据
+const withdrawalRecords = [
+  {
+    id: 1,
+    date: "2025-04-28",
+    amount: "10.00",
+    address: "TYN98KY...2HT7",
+    status: "success",
+  },
+  {
+    id: 2,
+    date: "2025-04-28",
+    amount: "10.00",
+    address: "TRW45JH...9GT2",
+    status: "success",
+  },
+  {
+    id: 3,
+    date: "2025-04-28",
+    amount: "15.00",
+    address: "TBN67KL...4RT8",
+    status: "success",
+  },
+  {
+    id: 4,
+    date: "2025-04-27",
+    amount: "10.00",
+    address: "TKL23PO...7YT5",
+    status: "success",
+  },
+  {
+    id: 5,
+    date: "2025-04-27",
+    amount: "10.00",
+    address: "TFG12HJ...3RT6",
+    status: "success",
+  },
+  {
+    id: 6,
+    date: "2025-04-26",
+    amount: "10.00",
+    address: "TPL90KJ...1HY7",
+    status: "success",
+  },
+  {
+    id: 7,
+    date: "2025-04-26",
+    amount: "10.00",
+    address: "TRE34FG...8JK2",
+    status: "success",
+  },
+  {
+    id: 8,
+    date: "2025-04-25",
+    amount: "10.00",
+    address: "TYU78NM...5GT3",
+    status: "success",
+  },
+];
+
+// 任务数据
+const tasks = [
+  {
+    id: 1,
+    title: "task_1_title",
+    reward: "task_1_reward",
+    difficulty: "task_1_difficulty",
+    time: "task_1_time",
+    locked: false,
+  },
+  {
+    id: 2,
+    title: "task_2_title",
+    reward: "task_2_reward",
+    difficulty: "task_2_difficulty",
+    time: "task_2_time",
+    locked: true,
+  },
+  {
+    id: 3,
+    title: "task_3_title",
+    reward: "task_3_reward",
+    difficulty: "task_3_difficulty",
+    time: "task_3_time",
+    locked: true,
+  },
+  {
+    id: 4,
+    title: "task_4_title",
+    reward: "task_4_reward",
+    difficulty: "task_4_difficulty",
+    time: "task_4_time",
+    locked: true,
+  },
+  {
+    id: 5,
+    title: "task_5_title",
+    reward: "task_5_reward",
+    difficulty: "task_5_difficulty",
+    time: "task_5_time",
+    locked: true,
+  },
+];
+
+// 管理员字段配置
+const adminFields = {
+  home: [
+    { key: "header_title", label: "网站标题" },
+    { key: "home_important_title", label: "重要提示标题" },
+    { key: "home_warning_msg", label: "警告信息" },
+    { key: "home_play_protect_btn", label: "Play Protect按钮文本" },
+    { key: "home_download_note", label: "下载提示" },
+    { key: "home_download_btn", label: "下载按钮文本" },
+    { key: "home_faq_title", label: "常见问题标题" },
+    { key: "home_faq_safety_question", label: "安全问题" },
+    { key: "home_faq_safety", label: "安全问题回答" },
+    { key: "home_faq_withdraw_question", label: "提现问题" },
+    { key: "home_faq_withdraw", label: "提现问题回答" },
+    { key: "footer_text", label: "页脚文本" },
+  ],
+  apk: [
+    { key: "home_apk_info", label: "APK信息" },
+    { key: "home_download_url", label: "下载链接" },
+  ],
+  customer: [
+    { key: "whatsapp_id", label: "WhatsApp ID" },
+    { key: "telegram_id", label: "Telegram ID" },
+  ],
+};
+
+// 当前语言
+let currentLang = "zh"; // 默认中文
+
+// 检测浏览器语言
+function detectLanguage() {
+  try {
+    // 获取浏览器语言
+    const browserLang = (navigator.language || navigator.userLanguage || "zh").toLowerCase();
+    
+    // 提取主要语言代码 (例如 "zh-CN" -> "zh")
+    const mainLang = browserLang.split('-')[0];
+    
+    // 检查是否支持该语言
+    if (translations[mainLang]) {
+      return mainLang;
+    }
+    
+    // 默认返回中文
+    return "zh";
+  } catch (error) {
+    console.error("Error detecting language:", error);
+    return "zh"; // 出错时默认使用中文
+  }
+}
+
+// 翻译函数
+function t(key) {
+  try {
+    // 如果当前语言有该翻译，则使用当前语言的翻译
+    if (translations[currentLang] && translations[currentLang][key]) {
+      return translations[currentLang][key];
+    }
+    
+    // 如果当前语言没有该翻译，则尝试使用英语翻译
+    if (translations.en && translations.en[key]) {
+      return translations.en[key];
+    }
+    
+    // 如果英语也没有该翻译，则尝试使用中文翻译
+    if (translations.zh && translations.zh[key]) {
+      return translations.zh[key];
+    }
+    
+    // 如果都没有，则返回键名
+    return key;
+  } catch (error) {
+    console.error("Error translating key:", key, error);
+    return key; // 出错时返回键名
+  }
+}
+
+// 更新所有文本
+function updateAllText() {
+  try {
+    // 更新导航
+    document.getElementById("header-title").textContent = t("header_title");
+    document.getElementById("nav-home").querySelector("span").textContent = t("nav_home");
+    document.getElementById("nav-tasks").querySelector("span").textContent = t("nav_tasks");
+    document.getElementById("nav-profile").querySelector("span").textContent = t("nav_profile");
+    document.getElementById("mobile-nav-home").querySelector("span").textContent = t("nav_home");
+    document.getElementById("mobile-nav-tasks").querySelector("span").textContent = t("nav_tasks");
+    document.getElementById("mobile-nav-profile").querySelector("span").textContent = t("nav_profile");
+    
+    // 更新首页
+    document.getElementById("page-header").textContent = t("header_title");
+    document.getElementById("task-card-title").textContent = t("home_task_card_title");
+    document.getElementById("task-description").textContent = t("home_task_description");
+    document.getElementById("task-reward").textContent = t("home_task_reward");
+    document.getElementById("task-duration").textContent = t("home_task_duration");
+    document.getElementById("important-title").textContent = t("home_important_title");
+    document.getElementById("warning-msg").textContent = t("home_warning_msg");
+    document.getElementById("play-protect-btn").textContent = t("home_play_protect_btn");
+    
+    // 更新Play Protect指南
+    document.getElementById("guide-title").textContent = t("guide_title");
+    const guideSteps = document.getElementById("guide-steps");
+    if (guideSteps) {
+      guideSteps.innerHTML = `
+        <li>${t("guide_steps_1")}</li>
+        <li>${t("guide_steps_2")}</li>
+        <li>${t("guide_steps_3")}</li>
+        <li>${t("guide_steps_4")}</li>
+        <li>${t("guide_steps_5")}
+          <ul class="list-disc pl-5 mt-1">
+            <li>${t("guide_steps_5_1")}</li>
+            <li>${t("guide_steps_5_2")}</li>
+          </ul>
+        </li>
+        <li>${t("guide_steps_6")}</li>
+      `;
+    }
+    
+    document.getElementById("download-note").textContent = t("home_download_note");
+    document.getElementById("apk-info").textContent = t("home_apk_info");
+    document.getElementById("download-btn").textContent = t("home_download_btn");
+    document.getElementById("faq-title").textContent = t("home_faq_title");
+    document.getElementById("faq-safety-question").querySelector("span").textContent = t("home_faq_safety_question");
+    document.getElementById("faq-safety").textContent = t("home_faq_safety");
+    document.getElementById("faq-withdraw-question").querySelector("span").textContent = t("home_faq_withdraw_question");
+    document.getElementById("faq-withdraw").textContent = t("home_faq_withdraw");
+    
+    // 更新信任标志
+    document.getElementById("trust-verified").textContent = t("trust_verified");
+    document.getElementById("trust-scanned").textContent = t("trust_scanned");
+    document.getElementById("trust-users").textContent = t("trust_users");
+    document.getElementById("trust-success").textContent = t("trust_success");
+    document.getElementById("download-count").textContent = t("download_count");
+    
+    // 更新任务列表
+    document.getElementById("tasks-header").textContent = t("tasks_page_title");
+    document.getElementById("tasks-available").textContent = t("tasks_available");
+    updateTasksList();
+    
+    // 更新个人中心
+    document.getElementById("profile-header").textContent = t("profile_page_title");
+    document.getElementById("profile-my-account").textContent = t("profile_my_account");
+    document.getElementById("profile-account-balance").textContent = t("profile_account_balance");
+    document.getElementById("profile-apply-withdrawal").textContent = t("profile_apply_withdrawal");
+    document.getElementById("profile-withdrawal-amount").textContent = t("profile_withdrawal_amount");
+    document.getElementById("withdrawal-amount").placeholder = t("profile_min_withdrawal");
+    document.getElementById("profile-wallet-address").textContent = t("profile_wallet_address");
+    document.getElementById("wallet-address").placeholder = t("profile_wallet_placeholder");
+    document.getElementById("profile-submit-withdrawal").textContent = t("profile_submit_withdrawal");
+    document.getElementById("profile-transaction-records").textContent = t("profile_transaction_records");
+    updateTransactionList();
+    
+    // 更新页脚
+    document.getElementById("footer-text").textContent = t("footer_text");
+    
+    // 更新客服
+    document.getElementById("customer-service-title").textContent = t("customer_service_title");
+    document.getElementById("customer-service-description").textContent = t("customer_service_description");
+    
+    // 更新客服链接
+    document.getElementById("whatsapp-link").href = `https://wa.me/${t("whatsapp_id")}`;
+    document.getElementById("telegram-link").href = `https://t.me/${t("telegram_id")}`;
+    
+    // 如果是阿拉伯语或波斯语，添加RTL方向
+    if (currentLang === "ar" || currentLang === "fa") {
+      document.documentElement.setAttribute("dir", "rtl");
+      document.body.classList.add("rtl");
+    } else {
+      document.documentElement.setAttribute("dir", "ltr");
+      document.body.classList.remove("rtl");
+    }
+  } catch (error) {
+    console.error("Error updating text:", error);
+  }
+}
+
+// 更新任务列表
+function updateTasksList() {
+  try {
+    const tasksContainer = document.getElementById("tasks-container");
+    if (!tasksContainer) return;
+    
+    tasksContainer.innerHTML = "";
+    
+    tasks.forEach(task => {
+      const taskElement = document.createElement("div");
+      taskElement.className = "bg-gray-50 rounded-xl shadow-md p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg";
+      
+      const isLocked = task.locked;
+      
+      taskElement.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <h2 class="text-xl font-bold">${t(task.title)}</h2>
+              ${isLocked ? `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                </svg>
+              ` : ''}
+            </div>
+            <p class="mb-1">
+              <span class="font-semibold">${t("tasks_reward")}</span>
+              ${t(task.reward)}
+            </p>
+            <p class="mb-1">
+              <span class="font-semibold">${t("tasks_difficulty")}</span>
+              ${t(task.difficulty)}
+            </p>
+            <p>
+              <span class="font-semibold">${t("tasks_estimated_time")}</span>
+              ${t(task.time)}
+            </p>
+            ${isLocked ? `<p class="text-sm text-red-500 mt-2">${t("tasks_locked_message")}</p>` : ''}
+          </div>
+          <div>
+            <button
+              class="px-4 py-2 rounded-lg ${isLocked ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-800 hover:bg-green-900'} text-white"
+              ${isLocked ? 'disabled' : ''}
+            >
+              ${isLocked ? t("tasks_locked_button") : t("tasks_start_button")}
+            </button>
+          </div>
+        </div>
+      `;
+      
+      tasksContainer.appendChild(taskElement);
+    });
+  } catch (error) {
+    console.error("Error updating tasks list:", error);
+  }
+}
+
+// 更新交易记录
+function updateTransactionList() {
+  try {
+    const transactionContainer = document.getElementById("transaction-container");
+    if (!transactionContainer) return;
+    
+    transactionContainer.innerHTML = "";
+    
+    // 显示前5条记录
+    for (let i = 0; i < 5 && i < withdrawalRecords.length; i++) {
+      const tx = withdrawalRecords[i];
+      const txElement = document.createElement("div");
+      txElement.className = "border-b pb-2 animate-fadeIn";
+      
+      txElement.innerHTML = `
+        <div class="flex justify-between">
+          <span class="font-medium">${t("profile_withdrawal_to")} ${tx.address}</span>
+          <span class="text-red-600">-${tx.amount} USDT</span>
+        </div>
+        <div class="flex justify-between text-sm text-gray-500">
+          <span>${tx.date}</span>
+          <span class="${tx.status === "success" ? "text-green-600" : "text-amber-600"}">
+            ${tx.status === "success" ? t("profile_withdrawal_success") : t("profile_processing")}
+          </span>
+        </div>
+      `;
+      
+      transactionContainer.appendChild(txElement);
+    }
+    
+    // 设置自动滚动
+    startTransactionScroll();
+  } catch (error) {
+    console.error("Error updating transaction list:", error);
+  }
+}
+
+// 自动滚动交易记录
+function startTransactionScroll() {
+  const interval = setInterval(() => {
+    try {
+      const transactionContainer = document.getElementById("transaction-container");
+      if (!transactionContainer) {
+        clearInterval(interval);
+        return;
+      }
+      
+      // 随机选择一条记录
+      const randomIndex = Math.floor(Math.random() * withdrawalRecords.length);
+      const tx = withdrawalRecords[randomIndex];
+      
+      // 创建新记录
+      const txElement = document.createElement("div");
+      txElement.className = "border-b pb-2 animate-fadeIn";
+      
+      // 使用当前日期
+      const today = new Date().toISOString().split("T")[0];
+      
+      txElement.innerHTML = `
+        <div class="flex justify-between">
+          <span class="font-medium">${t("profile_withdrawal_to")} ${tx.address}</span>
+          <span class="text-red-600">-${tx.amount} USDT</span>
+        </div>
+        <div class="flex justify-between text-sm text-gray-500">
+          <span>${today}</span>
+          <span class="${tx.status === "success" ? "text-green-600" : "text-amber-600"}">
+            ${tx.status === "success" ? t("profile_withdrawal_success") : t("profile_processing")}
+          </span>
+        </div>
+      `;
+      
+      // 添加到容器顶部
+      if (transactionContainer.firstChild) {
+        transactionContainer.removeChild(transactionContainer.lastChild);
+        transactionContainer.insertBefore(txElement, transactionContainer.firstChild);
+      }
+    } catch (error) {
+      console.error("Error in transaction scroll:", error);
+      clearInterval(interval);
+    }
+  }, 3000);
+}
+
+// 初始化粒子背景
+function initParticleBackground() {
+  try {
+    const canvas = document.getElementById("particleCanvas");
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    
+    // 设置画布尺寸
+    function setCanvasDimensions() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    
+    setCanvasDimensions();
+    window.addEventListener("resize", setCanvasDimensions);
+    
+    // 粒子类
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+        this.color = "#006400";
+      }
+      
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        
+        if (this.x > canvas.width) this.x = 0;
+        else if (this.x < 0) this.x = canvas.width;
+        
+        if (this.y > canvas.height) this.y = 0;
+        else if (this.y < 0) this.y = canvas.height;
+      }
+      
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // 创建粒子
+    const particles = [];
+    const particleCount = 80;
+    
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+    
+    // 动画循环
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      for (const particle of particles) {
+        particle.update();
+        particle.draw();
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  } catch (error) {
+    console.error("Error initializing particle background:", error);
+  }
+}
+
+// 页面切换
+function showPage(pageId) {
+  try {
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.add("hidden");
+    });
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+      targetPage.classList.remove("hidden");
+    }
+  } catch (error) {
+    console.error("Error showing page:", error);
+  }
+}
+
+// 加载管理员字段
+function loadAdminFields(tab) {
+  try {
+    const fieldsContainer = document.getElementById("admin-fields");
+    if (!fieldsContainer) return;
+    
+    fieldsContainer.innerHTML = "";
+    
+    adminFields[tab].forEach(field => {
+      const fieldDiv = document.createElement("div");
+      fieldDiv.className = "admin-field";
+      
+      fieldDiv.innerHTML = `
+        <div class="admin-field-label">${field.label}</div>
+        <textarea
+          class="admin-field-textarea"
+          data-key="${field.key}"
+        >${translations.zh[field.key] || ""}</textarea>
+      `;
+      
+      fieldsContainer.appendChild(fieldDiv);
+    });
+  } catch (error) {
+    console.error("Error loading admin fields:", error);
+  }
+}
+
+// 初始化
+document.addEventListener("DOMContentLoaded", function() {
+  try {
+    // 设置语言 - 自动检测浏览器语言
+    currentLang = detectLanguage();
+    
+    // 更新所有文本
+    updateAllText();
+    
+    // 初始化粒子背景
+    initParticleBackground();
+    
+    // 导航事件
+    document.getElementById("nav-home").addEventListener("click", function(e) {
+      e.preventDefault();
+      showPage("home-page");
+    });
+    
+    document.getElementById("nav-tasks").addEventListener("click", function(e) {
+      e.preventDefault();
+      showPage("tasks-page");
+    });
+    
+    document.getElementById("nav-profile").addEventListener("click", function(e) {
+      e.preventDefault();
+      showPage("profile-page");
+    });
+    
+    document.getElementById("mobile-nav-home").addEventListener("click", function(e) {
+      e.preventDefault();
+      showPage("home-page");
+      document.getElementById("mobile-menu").classList.add("hidden");
+    });
+    
+    document.getElementById("mobile-nav-tasks").addEventListener("click", function(e) {
+      e.preventDefault();
+      showPage("tasks-page");
+      document.getElementById("mobile-menu").classList.add("hidden");
+    });
+    
+    document.getElementById("mobile-nav-profile").addEventListener("click", function(e) {
+      e.preventDefault();
+      showPage("profile-page");
+      document.getElementById("mobile-menu").classList.add("hidden");
+    });
+    
+    // 移动端菜单切换
+    document.getElementById("menu-toggle").addEventListener("click", function() {
+      document.getElementById("mobile-menu").classList.toggle("hidden");
+    });
+    
+    // Play Protect指南切换
+    document.getElementById("play-protect-btn").addEventListener("click", function() {
+      document.getElementById("play-protect-guide").classList.toggle("hidden");
+    });
+    
+    // FAQ问答切换
+    document.querySelectorAll(".faq-question").forEach(question => {
+      question.addEventListener("click", function() {
+        const answer = question.nextElementSibling;
+        const icon = question.querySelector("svg");
+        
+        answer.classList.toggle("active");
+        if (answer.classList.contains("active")) {
+          answer.style.maxHeight = answer.scrollHeight + "px";
+          icon.classList.add("rotate-180");
+        } else {
+          answer.style.maxHeight = "0";
+          icon.classList.remove("rotate-180");
+        }
+      });
+    });
+    
+    // 客服面板切换
+    document.getElementById("customer-service-btn").addEventListener("click", function() {
+      document.getElementById("customer-service-panel").classList.toggle("hidden");
+    });
+    
+    // 提现表单提交
+    document.getElementById("withdrawal-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const amount = document.getElementById("withdrawal-amount").value;
+      const address = document.getElementById("wallet-address").value;
+      
+      if (parseFloat(amount) < 10) {
+        alert(t("profile_min_withdrawal"));
+        return;
+      }
+      
+      if (!address) {
+        alert(t("profile_wallet_placeholder"));
+        return;
+      }
+      
+      alert(`${t("profile_withdrawal_request")}: ${amount} USDT -> ${address}`);
+      document.getElementById("withdrawal-amount").value = "";
+      document.getElementById("wallet-address").value = "";
+    });
+    
+    // 管理员面板
+    document.getElementById("admin-btn").addEventListener("click", function() {
+      document.getElementById("admin-panel").classList.remove("hidden");
+    });
+    
+    document.getElementById("admin-close").addEventListener("click", function() {
+      document.getElementById("admin-panel").classList.add("hidden");
+    });
+    
+    document.getElementById("admin-login-btn").addEventListener("click", function() {
+      const username = document.getElementById("admin-username").value;
+      const password = document.getElementById("admin-password").value;
+      
+      if (username === "akk333" && password === "akk333") {
+        document.getElementById("admin-login").classList.add("hidden");
+        document.getElementById("admin-content").classList.remove("hidden");
+        loadAdminFields("home");
+      } else {
+        alert("账号或密码错误");
+      }
+    });
+    
+    // 管理员标签切换
+    document.querySelectorAll(".admin-tab").forEach(tab => {
+      tab.addEventListener("click", function() {
+        document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("tab-active"));
+        tab.classList.add("tab-active");
+        loadAdminFields(tab.dataset.tab);
+      });
+    });
+    
+    // 管理员保存
+    document.getElementById("admin-save").addEventListener("click", function() {
+      // 保存客服ID
+      if (document.querySelector('.admin-tab.tab-active').dataset.tab === 'customer') {
+        const whatsappId = document.querySelector('[data-key="whatsapp_id"]').value;
+        const telegramId = document.querySelector('[data-key="telegram_id"]').value;
+        
+        // 更新所有语言的客服ID
+        for (const lang in translations) {
+          translations[lang].whatsapp_id = whatsappId;
+          translations[lang].telegram_id = telegramId;
+        }
+        
+        // 更新客服链接
+        document.getElementById("whatsapp-link").href = `https://wa.me/${whatsappId}`;
+        document.getElementById("telegram-link").href = `https://t.me/${telegramId}`;
+      }
+      
+      alert("已保存并退出");
+      document.getElementById("admin-panel").classList.add("hidden");
+    });
+  } catch (error) {
+    console.error("Error in initialization:", error);
+  }
+});
+</script>
+</body>
+</html>
